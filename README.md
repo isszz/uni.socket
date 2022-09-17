@@ -23,7 +23,7 @@ const socket = new UniSocket({
 | heartRate      | 系统自动与将程序心跳发送至服务端，默认60000ms                |
 | heartRateType  | 设置心跳触发的事件，默认触发`HEARTBEAT`事件                  |
 | autoEmitBuffer | 是否自动发送缓存池中的数据，默认`false`                      |
-
+| reconnectionTryNum | 尝试重连次数，默认无限重连                      |
 
 
 ### 方法
@@ -38,6 +38,13 @@ socket.on('event', Function(data){
 })
 ```
 
+#### 注册事件时, 同时发送一条消息/ 可以用于订阅类
+```javascript
+socket.on('event', Function(data){
+	// .... 在此处理服务器发给你的邮件data          
+}, true, {type: 'event', data: {}})
+```
+
 服务器返回的数据必须遵守该格式才能保证正常使用：
 
 `{type: 'event', data: {}}`
@@ -47,26 +54,28 @@ socket.on('event', Function(data){
 如果你的第三个参数为`true`，那么uni.socket则会检查该事件驱动是否已被注册，如果未被注册，则将它进行注册，默认`false`
 
 ```javascript
-socket.on('event', Function, true);
+socket.on('event', Function, true {type: 'event' data: {id: '10001'}});
 ```
 
-
-
-#### off
-
-撤销注册的事件驱动，在uni.socket中，强制每个页面退出、关闭时调用此方法，因为uni.socket无法处理移除页面存在时注册过的事件驱动从而导致的内存泄漏。
+#### emit 给服务器发送消息
 
 ```javascript
-socket.off('event', handler);
+socket.emit('event', {msg: "hello world"});
+```
+
+#### off 注销事件
+
+撤销注册的事件驱动，在uni.socket中，强制每个页面退出、关闭时调用此方法，因为uni.socket无法处理移除页面存在时注册过的事件驱动从而导致的内存泄漏。
+第三个参数用于注销事件时, 发送一条消息给服务器, 一般用来做业务退订, 此参数为可选参数
+```javascript
+socket.off('event', handler, {type: 'unsub.info' data: {id: '10001'})
 ```
 
 此方法支持连续注销驱动。
 
 ```javascript
-socket.off('event', handler1)('event', handler2)('event', handler3);
+socket.off('event', handler1, msg1)('event', handler2, msg2)('event', handler3 , msg3);
 ```
-
-
 
 例如：
 
@@ -78,12 +87,12 @@ export default {
     }
     },
     onLoad() {
-      socket.on('hello', this.hello);
+      socket.on('hello', this.hello, {type: "sub.info", data: {id: 1001}});
     },
     onUnload() {
       // 监听页面卸载
       // 页面退出，撤销hello，释放资源
-      socket.off('hello', this.hello);
+      socket.off('hello', this.hello, {type: "unsub.info", data: {id: 1001}});
     }
   }
 ```
@@ -102,8 +111,6 @@ socket.removeEventByName('event').then(commit => {
 });
 ```
 
-
-
 #### addBuffer
 
 给缓存池添加数据
@@ -111,8 +118,6 @@ socket.removeEventByName('event').then(commit => {
 ```javascript
 socket.addBuffer({type: 'event', data: {}})
 ```
-
-
 
 #### getBuffer
 
@@ -127,7 +132,6 @@ socket.getBuffer().then(buffer => {
 ```
 
 
-
 #### getState
 
 获取连接状态0 表示连接中，1表示连接成功，2表示重连中，3表示失败
@@ -140,8 +144,6 @@ socket.getState().then(state => {
 });
 ```
 
-
-
 #### killApp
 
 结束心跳，心跳结束后，uni.socket除了心跳发送，在下一次发送心跳时间内，其它功能正常使用，需要后端进行处理
@@ -150,8 +152,6 @@ socket.getState().then(state => {
 socket.killApp();
 ```
 
-
-
 #### close
 
 关闭与服务器的连接，注意，它不会触发`error`事件
@@ -159,18 +159,6 @@ socket.killApp();
 ```javascript
 socket.close();
 ```
-
-
-
-#### emit
-
-给服务器发送消息
-
-```javascript
-socket.emit('event', {msg: "hello world"});
-```
-
-
 
 ### 关于心跳
 
@@ -182,8 +170,6 @@ new UniSocket({
   heartRateType: "Your event name..."
 });
 ```
-
-
 
 > 关于心跳会触发两次的问题，因为uni.socket发送的时候会触发一次心跳事件，而接收到服务端心跳的时候也会触发一次心跳事件。
 
