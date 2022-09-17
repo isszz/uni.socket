@@ -33,15 +33,15 @@ const socket = new UniSocket({
 on方法是一个为uni.socket注册自定义事件的方法，该事件将通过你服务器传回的数据触发，因此，你服务器数据返回的格式必须遵守约定。
 
 ```javascript
-socket.on('event', Function(data){
-	// .... 在此处理服务器发给你的邮件data          
-})
+socket.on('event', (data) => {
+    // .... 在此处理服务器发给你的邮件data          
+}, false, {type: 'event', data: {}})
 ```
 
 #### 注册事件时, 同时发送一条消息/ 可以用于订阅类
 ```javascript
-socket.on('event', Function(data){
-	// .... 在此处理服务器发给你的邮件data          
+socket.on('event', (data) => {
+    // .... 在此处理服务器发给你的邮件data          
 }, true, {type: 'event', data: {}})
 ```
 
@@ -49,18 +49,18 @@ socket.on('event', Function(data){
 
 `{type: 'event', data: {}}`
 
-`data`未必是Object格式，它可以是任意格式，但必须拥有`type`和`data`，`tyep`是服务器与你的约定，它将去使用你注册的事件驱动，也就是说，uni.socket是通过`type`字段来进行触发你自定义的事件驱动的。
+`data`未必是Object格式，它可以是任意格式，但必须拥有`type`和`data`，`type`是服务器与你的约定，它将去使用你注册的事件驱动，也就是说，uni.socket是通过`type`字段来进行触发你自定义的事件驱动的。
 
 如果你的第三个参数为`true`，那么uni.socket则会检查该事件驱动是否已被注册，如果未被注册，则将它进行注册，默认`false`
 
 ```javascript
-socket.on('event', Function, true {type: 'event' data: {id: '10001'}});
+socket.on('event', () => {}, true {type: 'event' data: {id: '10001'}})
 ```
 
 #### emit 给服务器发送消息
 
 ```javascript
-socket.emit('event', {msg: "hello world"});
+socket.emit('event', {msg: "hello world"})
 ```
 
 #### off 注销事件
