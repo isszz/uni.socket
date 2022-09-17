@@ -67,8 +67,9 @@ socket.emit('event', {msg: "hello world"});
 
 撤销注册的事件驱动，在uni.socket中，强制每个页面退出、关闭时调用此方法，因为uni.socket无法处理移除页面存在时注册过的事件驱动从而导致的内存泄漏。
 第三个参数用于注销事件时, 发送一条消息给服务器, 一般用来做业务退订, 此参数为可选参数
+退订消息, 使用订阅的相同type, 会在type前加un,例如unsub.info, 后端根据此event退订相关的业务
 ```javascript
-socket.off('event', handler, {type: 'unsub.info' data: {id: '10001'})
+socket.off('event', handler, {type: 'sub.info' data: {id: '10001'})
 ```
 
 此方法支持连续注销驱动。
