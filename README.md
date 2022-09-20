@@ -42,19 +42,19 @@ socket.on('event', (data) => {
 ```javascript
 socket.on('event', (data) => {
     // .... 在此处理服务器发给你的邮件data          
-}, true, {type: 'event', data: {}})
+}, true, {event: 'event', data: {}})
 ```
 
 服务器返回的数据必须遵守该格式才能保证正常使用：
 
-`{type: 'event', data: {}}`
+`{ch: 'event', data: {}}`
 
-`data`未必是Object格式，它可以是任意格式，但必须拥有`type`和`data`，`type`是服务器与你的约定，它将去使用你注册的事件驱动，也就是说，uni.socket是通过`type`字段来进行触发你自定义的事件驱动的。
+`data`未必是Object格式，它可以是任意格式，但必须拥有`ch`和`data`，`ch`是服务器与你的约定，它将去使用你注册的事件驱动，也就是说，uni.socket是通过`ch`字段来进行触发你自定义的事件驱动的。
 
 如果你的第三个参数为`true`，那么uni.socket则会检查该事件驱动是否已被注册，如果未被注册，则将它进行注册，默认`false`
 
 ```javascript
-socket.on('event', () => {}, true {type: 'event' data: {id: '10001'}})
+socket.on('event', () => {}, true {event: 'event' data: {id: '10001'}})
 ```
 
 #### emit 给服务器发送消息
@@ -67,9 +67,9 @@ socket.emit('event', {msg: "hello world"})
 
 撤销注册的事件驱动，在uni.socket中，强制每个页面退出、关闭时调用此方法，因为uni.socket无法处理移除页面存在时注册过的事件驱动从而导致的内存泄漏。
 第三个参数用于注销事件时, 发送一条消息给服务器, 一般用来做业务退订, 此参数为可选参数
-退订消息, 使用订阅的相同type, 会在type前加un,例如unsub.info, 后端根据此event退订相关的业务
+退订消息, 使用订阅的相同event, 会在event前加un,例如unsub.info, 后端根据此event退订相关的业务
 ```javascript
-socket.off('event', handler, {type: 'sub.info' data: {id: '10001'})
+socket.off('event', handler, {event: 'sub.info' data: {id: '10001'})
 ```
 
 此方法支持连续注销驱动。
@@ -88,12 +88,12 @@ export default {
     }
     },
     onLoad() {
-      socket.on('hello', this.hello, {type: "sub.info", data: {id: 1001}});
+      socket.on('hello', this.hello, {event: "sub.info", data: {id: 1001}});
     },
     onUnload() {
       // 监听页面卸载
       // 页面退出，撤销hello，释放资源
-      socket.off('hello', this.hello, {type: "unsub.info", data: {id: 1001}});
+      socket.off('hello', this.hello, {event: "unsub.info", data: {id: 1001}});
     }
   }
 ```
@@ -117,7 +117,7 @@ socket.removeEventByName('event').then(commit => {
 给缓存池添加数据
 
 ```javascript
-socket.addBuffer({type: 'event', data: {}})
+socket.addBuffer({event: 'event', data: {}})
 ```
 
 #### getBuffer
@@ -167,8 +167,8 @@ uni.socket需向服务器定时发送一次心跳，其触发的事件为`HEARTB
 
 ```javascript
 new UniSocket({
-	url: "wss://127.0.0.1/",
-  heartRateType: "Your event name..."
+    url: "wss://127.0.0.1/",
+    heartRateType: "Your event name..."
 });
 ```
 
