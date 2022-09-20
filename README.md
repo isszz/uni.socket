@@ -38,12 +38,22 @@ socket.on('event', (data) => {
 }, false, {type: 'event', data: {}})
 ```
 
+
 #### 注册事件时, 同时发送一条消息/ 可以用于订阅类
 ```javascript
 socket.on('event', (data) => {
     // .... 在此处理服务器发给你的邮件data          
 }, true, {event: 'event', data: {}})
 ```
+
+#### 第三个参数为true时, 为了使用相同的event, 也可以加命名空间例:
+```
+// onShow - 订阅
+uni.$socket.on('sub.news.list@indexHotNewsList', this.revIndexHotNewsList, true, {"is_hot": 1, "order": "created", "asc": 0})
+// onHide - 退订, 建议在离开页面后就退订, 回到页面再订阅
+uni.$socket.off('sub.news.list@indexHotNewsList', this.revIndexHotNewsList, {"is_hot": 1, "order": "created", "asc": 0})
+```
+#### 命名空间在前端只是为了防止不能使用相同event订阅消息, 需要在后端拿到event后指向功能时删除@namesapce, 回调数据还是需要完整的ch=event,不然前端无法拿到数据
 
 服务器返回的数据必须遵守该格式才能保证正常使用：
 
