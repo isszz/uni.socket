@@ -1,1 +1,2 @@
-
+import UniSocket from "./lib/uni.socket.uts"
+export default UniSocket;
