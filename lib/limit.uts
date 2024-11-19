@@ -1,1 +1,38 @@
+export default class Limit {
+    private running: number = 0;
+    private queue: Array<() => void> = [];
+    private limit: number;
 
+    constructor(limit: number) {
+        this.limit = limit;
+    }
+
+    async run<T>(task: () => Promise<T>): Promise<T> {
+        const runTask = async () => {
+            try {
+                this.running++;
+                return await task();
+            } finally {
+                this.running--;
+                this.next();
+            }
+        };
+
+        if (this.running < this.limit) {
+            return runTask();
+        } else {
+            return new Promise<T>((resolve) => {
+                this.queue.push(async () => {
+                    const result = await runTask();
+                    resolve(result);
+                });
+            });
+        }
+    }
+
+    private next() {
+        if (this.queue.length > 0) {
+            this.queue.shift()?.();
+        }
+    }
+}
