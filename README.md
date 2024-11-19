@@ -35,7 +35,7 @@ on方法是一个为uni.socket注册自定义事件的方法，该事件将通�
 ```javascript
 socket.on('event', (data) => {
     // .... 在此处理服务器发给你的邮件data          
-}, false, {type: 'event', data: {}})
+}, {type: 'event', data: {}}, false)
 ```
 
 
@@ -43,15 +43,15 @@ socket.on('event', (data) => {
 ```javascript
 socket.on('event', (data) => {
     // .... 在此处理服务器发给你的邮件data          
-}, true, {event: 'event', data: {}})
+}, {event: 'event', data: {}}, true)
 ```
 
 #### 第三个参数为true时, 为了使用相同的event, 也可以加命名空间例:
 ```
 // onShow - 订阅
-uni.$socket.on('sub.news.list@indexHotNewsList', this.revIndexHotNewsList, true, {"is_hot": 1, "order": "created", "asc": 0})
+uni.$socket.on('sub.news.list@indexHotNewsList', this.revIndexHotNewsList, {"is_hot": 1, "order": "created", "asc": 0}, true)
 // onHide - 退订, 建议在离开页面后就退订, 回到页面再订阅
-uni.$socket.off('sub.news.list@indexHotNewsList', this.revIndexHotNewsList, {"is_hot": 1, "order": "created", "asc": 0})
+uni.$socket.off('sub.news.list@indexHotNewsList', this.revIndexHotNewsList})
 ```
 #### 命名空间在前端只是为了防止不能使用相同event订阅消息, 需要在后端拿到event后指向功能时删除@namesapce, 回调数据还是需要完整的ch=event,不然前端无法拿到数据
 
@@ -64,7 +64,7 @@ uni.$socket.off('sub.news.list@indexHotNewsList', this.revIndexHotNewsList, {"is
 如果你的第三个参数为`true`，那么uni.socket则会检查该事件驱动是否已被注册，如果未被注册，则将它进行注册，默认`false`
 
 ```javascript
-socket.on('event', () => {}, true {event: 'event' data: {id: '10001'}})
+socket.on('event', () => {} {event: 'event' data: {id: '10001'}}, true)
 ```
 
 #### emit 给服务器发送消息
@@ -79,13 +79,7 @@ socket.emit('event', {msg: "hello world"})
 第三个参数用于注销事件时, 发送一条消息给服务器, 一般用来做业务退订, 此参数为可选参数
 退订消息, 使用订阅的相同event, 会在event前加un,例如unsub.info, 后端根据此event退订相关的业务
 ```javascript
-socket.off('event', handler, {event: 'sub.info' data: {id: '10001'})
-```
-
-此方法支持连续注销驱动。
-
-```javascript
-socket.off('event', handler1, msg1)('event', handler2, msg2)('event', handler3 , msg3);
+socket.off('event', handler)
 ```
 
 例如：
@@ -103,7 +97,7 @@ export default {
     onUnload() {
       // 监听页面卸载
       // 页面退出，撤销hello，释放资源
-      socket.off('hello', this.hello, {event: "unsub.info", data: {id: 1001}});
+      socket.off('hello', this.hello);
     }
   }
 ```
@@ -117,7 +111,7 @@ export default {
 **移除自定义事件包括任何给这个事件注册的驱动**
 
 ```javascript
-socket.removeEventByName('event').then(commit => {
+socket.removeEvent('event').then(commit => {
   commit();
 });
 ```
@@ -135,7 +129,7 @@ socket.addBuffer({event: 'event', data: {}})
 获取缓存池
 
 ```javascript
-const buffer = await socket.getBuffer();
+const buffer = socket.getBuffer();
 // or
 socket.getBuffer().then(buffer => {
 	//  ...处理你的缓存池
